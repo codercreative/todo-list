@@ -9,7 +9,7 @@ function App() {
     <div>
       <h1>My Todos</h1>
       <TodoForm />
-      {newTodo}
+      <p> {newTodo}</p>
       <TodoList />
     </div>
   );
