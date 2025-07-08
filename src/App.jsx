@@ -4,7 +4,7 @@ import TodoForm from './TodoForm.jsx';
 import TodoList from './TodoList.jsx';
 
 function App() {
-  const [newTodo, setNewTodo] = useState("Today's list");
+  const [newTodo, setNewTodo] = useState("Today's list:");
   return (
     <div>
       <h1>My Todos</h1>
