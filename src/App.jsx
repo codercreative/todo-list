@@ -21,7 +21,6 @@ function App() {
     return setTodoList(updatedTodos);
   }
 
-  // working on this...not yet correct...
   function updateTodo(editedTodo) {
     const editedTodos = todoList.map((todo) => {
       if (todo.id === editedTodo.id) {
