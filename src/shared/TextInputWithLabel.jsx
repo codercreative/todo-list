@@ -1,7 +1,19 @@
-function TextInputWithLabel({ elementId, labelText, onChange, ref, value }) {
+function TextInputWithLabel({
+  elementId,
+  labelText,
+  onChange,
+  ref,
+  value,
+  hideLabel,
+}) {
   return (
     <>
-      <label htmlFor={elementId}>{labelText}</label>
+      <label
+        htmlFor={elementId}
+        className={hideLabel ? 'visually-hidden' : undefined}
+      >
+        {labelText}
+      </label>
       <input
         type="text"
         id={elementId}

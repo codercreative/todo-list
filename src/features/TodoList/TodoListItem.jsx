@@ -26,7 +26,13 @@ function TodoListItem({ todo, onCompleteTodo, onUpdateTodo }) {
       <form onSubmit={handleUpdate}>
         {isEditing ? (
           <>
-            <TextInputWithLabel value={workingTitle} onChange={handleEdit} />
+            <TextInputWithLabel
+              elementId={`todo-${todo.id}`}
+              labelText="Edit todo title"
+              value={workingTitle}
+              onChange={handleEdit}
+              hideLabel={true}
+            />
             <button type="button" onClick={handleCancel}>
               Cancel
             </button>
