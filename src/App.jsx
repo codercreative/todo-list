@@ -3,14 +3,14 @@ import './App.css';
 import TodoForm from './features/TodoForm.jsx';
 import TodoList from './features/TodoList/TodoList.jsx';
 
+const url = `https://api.airtable.com/v0/${import.meta.env.VITE_BASE_ID}/${import.meta.env.VITE_TABLE_NAME}`;
+const token = `Bearer ${import.meta.env.VITE_PAT}`;
 function App() {
   const [todoList, setTodoList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
-  const url = `https://api.airtable.com/v0/${import.meta.env.VITE_BASE_ID}/${import.meta.env.VITE_TABLE_NAME}`;
-  const token = `Bearer ${import.meta.env.VITE_PAT}`;
   useEffect(() => {
     const fetchTodos = async () => {
       setIsLoading(true);
@@ -38,6 +38,7 @@ function App() {
           }
           return todo;
         });
+
         setTodoList(fetchedRecords);
       } catch (error) {
         setErrorMessage(error.message);
@@ -48,11 +49,6 @@ function App() {
 
     fetchTodos();
   }, []);
-
-  // function addTodo(title) {
-  //   const newTodo = { id: Date.now(), title: title, isCompleted: false };
-  //   setTodoList([...todoList, newTodo]);
-  // }
 
   const addTodo = async (newTodo) => {
     const payload = {
