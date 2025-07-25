@@ -10,6 +10,10 @@ function TodoListItem({ todo, onCompleteTodo, onUpdateTodo }) {
     isEditing && todoEditInput.current.focus();
   }, [isEditing]);
 
+  useEffect(() => {
+    setWorkingTitle(todo.title);
+  }, [todo]);
+
   function handleCancel() {
     setWorkingTitle(todo.title);
     setIsEditing(false);
