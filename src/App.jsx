@@ -103,15 +103,76 @@ function App() {
     return setTodoList(updatedTodos);
   }
 
-  function updateTodo(editedTodo) {
-    const editedTodos = todoList.map((todo) => {
-      if (todo.id === editedTodo.id) {
-        return { ...editedTodo };
+  // function updateTodo(editedTodo) {
+  //   const editedTodos = todoList.map((todo) => {
+  //     if (todo.id === editedTodo.id) {
+  //       return { ...editedTodo };
+  //     }
+  //     return todo;
+  //   });
+  //   return setTodoList(editedTodos);
+  // }
+
+  const updateTodo = async (editedTodo) => {
+    const originalTodo = todoList.find((todo) => todo.id === editedTodo.id);
+    const payload = {
+      records: [
+        {
+          id: editedTodo.id,
+          fields: {
+            title: editedTodo.title,
+            isCompleted: editedTodo.isCompleted,
+          },
+        },
+      ],
+    };
+    const options = {
+      method: 'PATCH',
+      headers: {
+        Authorization: token,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    };
+    try {
+      setIsSaving(true);
+      const resp = await fetch(url, options);
+      if (!resp.ok) {
+        throw new Error('Failed editing todos');
       }
-      return todo;
-    });
-    return setTodoList(editedTodos);
-  }
+      const { records } = await resp.json();
+      const savedTodo = {
+        id: records[0].id,
+        ...records[0].fields,
+      };
+
+      if (!records[0].fields.isCompleted) {
+        savedTodo.isCompleted = false;
+      }
+      setTodoList((prevTodos) =>
+        prevTodos.map((todo) => {
+          if (todo.id === editedTodo.id) {
+            return editedTodo;
+          } else {
+            return todo;
+          }
+        })
+      );
+    } catch (error) {
+      console.log(error);
+      setErrorMessage(`${error.message}. Reverting todo...`);
+      const revertedTodos = todoList.map((todo) => {
+        if (todo.id === originalTodo.id) {
+          return todo;
+        } else {
+          return originalTodo;
+        }
+      });
+      setTodoList([...revertedTodos]);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div>
