@@ -93,12 +93,9 @@ function App() {
     }
   };
 
-  const completeTodo = async (completeTodo) => {
-    console.log('param value:', completeTodo);
-    console.log('param type:', typeof completeTodo);
-    console.log('param.id:', completeTodo?.id);
-    const originalTodo = todoList.find((todo) => todo.id === completeTodo);
-    console.log(completeTodo.id);
+  const completeTodo = async (todoId) => {
+    const originalTodo = todoList.find((todo) => todo.id === todoId);
+
     const checkedTodo = {
       ...originalTodo,
       isCompleted: !originalTodo.isCompleted,
@@ -150,6 +147,14 @@ function App() {
     } catch (error) {
       console.log(error);
       setErrorMessage(error.message);
+      const revertedTodos = todoList.map((todo) => {
+        if (todo.id === originalTodo.id) {
+          return originalTodo;
+        } else {
+          return todo;
+        }
+      });
+      setTodoList([...revertedTodos]);
     } finally {
       setIsSaving(false);
     }
