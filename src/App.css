@@ -9,3 +9,7 @@
   white-space: nowrap;
   border: 0;
 }
+
+.strike-through-text {
+  text-decoration: line-through;
+}
