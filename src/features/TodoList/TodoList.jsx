@@ -17,7 +17,7 @@ function TodoList({ todoList, onCompleteTodo, onUpdateTodo, isLoading }) {
     });
   };
 
-  if (todoList.length === 0) {
+  if (!isLoading && todoList.length === 0) {
     return <p>Add todo above to get started</p>;
   }
 

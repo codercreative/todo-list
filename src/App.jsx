@@ -45,7 +45,9 @@ function App() {
         );
         console.log(resp);
         if (!resp.ok) {
-          throw new Error('Failed to load todos');
+          // const errorData = await resp.json();
+          // console.log(errorData);
+          throw new Error(`Error: ${resp.status} | Failed to load todos`);
         }
         const response = await resp.json();
 
@@ -98,7 +100,7 @@ function App() {
       );
       console.log(resp);
       if (!resp.ok) {
-        throw new Error('Failed posting todos');
+        throw new Error(`Error: ${resp.status} | Failed posting todos`);
       }
       const { records } = await resp.json();
       const savedTodo = {
@@ -119,11 +121,12 @@ function App() {
   };
 
   const completeTodo = async (todoId) => {
+    const previousTodoList = [...todoList];
     const originalTodo = todoList.find((todo) => todo.id === todoId);
 
     const checkedTodo = {
       ...originalTodo,
-      isCompleted: !originalTodo.isCompleted,
+      isCompleted: originalTodo.isCompleted === false,
     };
     setTodoList((prevTodos) =>
       prevTodos.map((todo) => {
@@ -160,7 +163,7 @@ function App() {
         options
       );
       if (!resp.ok) {
-        throw new Error('Failed completing todos');
+        throw new Error(`Error: ${resp.status} | Failed completing todos`);
       }
       const { records } = await resp.json();
       const completeTodo = {
@@ -175,21 +178,23 @@ function App() {
     } catch (error) {
       console.log(error);
       setErrorMessage(error.message);
-      const revertedTodos = todoList.map((todo) => {
-        if (todo.id === originalTodo.id) {
-          return originalTodo;
-        } else {
-          return todo;
-        }
-      });
-      setTodoList([...revertedTodos]);
+      // const revertedTodos = todoList.map((todo) => {
+      //   if (todo.id === originalTodo.id) {
+      //     return previousTodos;
+      //   } else {
+      //     return todo;
+      //   }
+      // });
+      //Created a const for previousTodos at the very beginning of the completeTodo helper function and falling back to the previousTodos here in case there is an error. This is a nice refactor too.
+      setTodoList(previousTodoList);
     } finally {
       setIsSaving(false);
     }
   };
 
   const updateTodo = async (editedTodo) => {
-    const originalTodo = todoList.find((todo) => todo.id === editedTodo.id);
+    const previousTodoList = [...todoList];
+    // const originalTodo = todoList.find((todo) => todo.id === editedTodo.id);
     const payload = {
       records: [
         {
@@ -216,7 +221,7 @@ function App() {
         options
       );
       if (!resp.ok) {
-        throw new Error('Failed editing todos');
+        throw new Error(`Error: ${resp.status} | Failed editing todos`);
       }
       const { records } = await resp.json();
       const savedTodo = {
@@ -239,14 +244,15 @@ function App() {
     } catch (error) {
       console.log(error);
       setErrorMessage(`${error.message}. Reverting todo...`);
-      const revertedTodos = todoList.map((todo) => {
-        if (todo.id === originalTodo.id) {
-          return originalTodo;
-        } else {
-          return todo;
-        }
-      });
-      setTodoList([...revertedTodos]);
+      // const revertedTodos = todoList.map((todo) => {
+      //   if (todo.id === originalTodo.id) {
+      //     return originalTodo;
+      //   } else {
+      //     return todo;
+      //   }
+      // });
+      // setTodoList([...revertedTodos]);
+      setTodoList(previousTodoList);
     } finally {
       setIsSaving(false);
     }
