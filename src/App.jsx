@@ -122,16 +122,18 @@ function App() {
 
   const completeTodo = async (todoId) => {
     const previousTodoList = [...todoList];
+
     const originalTodo = todoList.find((todo) => todo.id === todoId);
 
-    const checkedTodo = {
+    const toggledTodo = {
       ...originalTodo,
-      isCompleted: originalTodo.isCompleted === false,
+      isCompleted: !originalTodo.isCompleted,
     };
+
     setTodoList((prevTodos) =>
       prevTodos.map((todo) => {
-        if (todo.id === checkedTodo.id) {
-          return checkedTodo;
+        if (todo.id === todoId) {
+          return toggledTodo;
         } else {
           return todo;
         }
@@ -140,10 +142,10 @@ function App() {
     const payload = {
       records: [
         {
-          id: checkedTodo.id,
+          id: toggledTodo.id,
           fields: {
-            title: checkedTodo.title,
-            isCompleted: checkedTodo.isCompleted,
+            title: toggledTodo.title,
+            isCompleted: toggledTodo.isCompleted,
           },
         },
       ],
