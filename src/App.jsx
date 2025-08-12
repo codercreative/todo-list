@@ -29,6 +29,14 @@ function App() {
   const [queryString, setQueryString] = useState('');
 
   useEffect(() => {
+    //conditional to filter todoList locally
+    if (queryString !== '') {
+      const filteredTodos = todoList.filter((todo) =>
+        todo.title.toLowerCase().includes(queryString.toLowerCase())
+      );
+      setTodoList(filteredTodos);
+      return;
+    }
     const fetchTodos = async () => {
       setIsLoading(true);
 
