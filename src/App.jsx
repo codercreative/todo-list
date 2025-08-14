@@ -175,16 +175,17 @@ function App() {
       if (!resp.ok) {
         throw new Error(`Error: ${resp.status} | Failed completing todos`);
       }
-      const { records } = await resp.json();
-      const completeTodo = {
-        id: records[0].id,
-        ...records[0].fields,
-        isCompleted: records[0].fields.isCompleted === true,
-      };
+      //Since completeTodo is updated optimistically I do not need below code.
+      // const { records } = await resp.json();
+      // const completeTodo = {
+      //   id: records[0].id,
+      //   ...records[0].fields,
+      //   isCompleted: records[0].fields.isCompleted,
+      // };
 
-      if (records[0].fields.isCompleted) {
-        completeTodo.isCompleted = true;
-      }
+      // if (records[0].fields.isCompleted) {
+      //   completeTodo.isCompleted = true;
+      // }
     } catch (error) {
       console.log(error);
       setErrorMessage(error.message);
@@ -204,7 +205,18 @@ function App() {
 
   const updateTodo = async (editedTodo) => {
     const previousTodoList = [...todoList];
-    // const originalTodo = todoList.find((todo) => todo.id === editedTodo.id);
+
+    //Optimistically updating the todo using setTodoList with map to immediately reflect the change in the UI
+    setTodoList((prevTodos) =>
+      prevTodos.map((todo) => {
+        if (todo.id === editedTodo.id) {
+          return editedTodo;
+        } else {
+          return todo;
+        }
+      })
+    );
+
     const payload = {
       records: [
         {
@@ -233,24 +245,16 @@ function App() {
       if (!resp.ok) {
         throw new Error(`Error: ${resp.status} | Failed editing todos`);
       }
-      const { records } = await resp.json();
-      const savedTodo = {
-        id: records[0].id,
-        ...records[0].fields,
-      };
+      //Since updateTodo is updated optimistically I do not need below code.
+      // const { records } = await resp.json();
+      // const savedTodo = {
+      //   id: records[0].id,
+      //   ...records[0].fields,
+      // };
 
-      if (!records[0].fields.isCompleted) {
-        savedTodo.isCompleted = false;
-      }
-      setTodoList((prevTodos) =>
-        prevTodos.map((todo) => {
-          if (todo.id === editedTodo.id) {
-            return editedTodo;
-          } else {
-            return todo;
-          }
-        })
-      );
+      // if (!records[0].fields.isCompleted) {
+      //   savedTodo.isCompleted = false;
+      // }
     } catch (error) {
       console.log(error);
       setErrorMessage(`${error.message}. Reverting todo...`);
