@@ -7,32 +7,11 @@ function TodoList({
   isLoading,
   queryString,
 }) {
-  // const pendingTodos = todoList.filter((todo) => todo.isCompleted !== true);
-  // const completedTodos = todoList.filter((todo) => todo.isCompleted === true);
+  const todosToRender = todoList;
 
-  // const renderCheckedAndUncheckedTodos = (todosToRender) => {
-  //   return todosToRender.map((todo) => {
-  //     return (
-  //       <TodoListItem
-  //         key={todo.id}
-  //         todo={todo}
-  //         onCompleteTodo={onCompleteTodo}
-  //         onUpdateTodo={onUpdateTodo}
-  //       />
-  //     );
-  //   });
-  // };
-
-  //conditional to filter todoList locally
-  // if (queryString !== '') {
-  //   const filteredTodos = todoList.filter((todo) =>
-  //     todo.title.toLowerCase().includes(queryString.toLowerCase())
-  //   );
-  //   setTodoList(filteredTodos);
-  //   return;
-  // }
-
-  const filteredTodoList = todoList;
+  if (isLoading && queryString === '') {
+    return <p>Todo list is loading... </p>;
+  }
 
   if (todoList.length === 0) {
     return <p>Add todo above to get started</p>;
@@ -40,17 +19,15 @@ function TodoList({
 
   return (
     <>
-      {isLoading && queryString === '' ? <p>Todo list is loading... </p> : ''}
       {!isLoading && (
         <ul>
-          {filteredTodoList.map((todo) => {
+          {todosToRender.map((todo) => {
             return (
               <TodoListItem
                 key={todo.id}
                 todo={todo}
                 onCompleteTodo={onCompleteTodo}
                 onUpdateTodo={onUpdateTodo}
-                queryString={queryString}
               />
             );
           })}

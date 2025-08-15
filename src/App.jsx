@@ -273,6 +273,7 @@ function App() {
         onCompleteTodo={completeTodo}
         onUpdateTodo={updateTodo}
         isLoading={isLoading}
+        queryString={queryString}
       />
       <hr />
       <TodosViewForm
