@@ -1,6 +1,12 @@
 import TodoListItem from './TodoListItem.jsx';
 
-function TodoList({ todoList, onCompleteTodo, onUpdateTodo, isLoading }) {
+function TodoList({
+  todoList,
+  onCompleteTodo,
+  onUpdateTodo,
+  isLoading,
+  queryString,
+}) {
   // const pendingTodos = todoList.filter((todo) => todo.isCompleted !== true);
   // const completedTodos = todoList.filter((todo) => todo.isCompleted === true);
 
@@ -17,6 +23,15 @@ function TodoList({ todoList, onCompleteTodo, onUpdateTodo, isLoading }) {
   //   });
   // };
 
+  //conditional to filter todoList locally
+  // if (queryString !== '') {
+  //   const filteredTodos = todoList.filter((todo) =>
+  //     todo.title.toLowerCase().includes(queryString.toLowerCase())
+  //   );
+  //   setTodoList(filteredTodos);
+  //   return;
+  // }
+
   const filteredTodoList = todoList;
 
   if (todoList.length === 0) {
@@ -25,20 +40,22 @@ function TodoList({ todoList, onCompleteTodo, onUpdateTodo, isLoading }) {
 
   return (
     <>
-      {/* {isLoading && <p>Todo list is loading... </p>}
-      {!isLoading && ( */}
-      <ul>
-        {filteredTodoList.map((todo) => {
-          return (
-            <TodoListItem
-              key={todo.id}
-              todo={todo}
-              onCompleteTodo={onCompleteTodo}
-              onUpdateTodo={onUpdateTodo}
-            />
-          );
-        })}
-      </ul>
+      {isLoading && queryString === '' ? <p>Todo list is loading... </p> : ''}
+      {!isLoading && (
+        <ul>
+          {filteredTodoList.map((todo) => {
+            return (
+              <TodoListItem
+                key={todo.id}
+                todo={todo}
+                onCompleteTodo={onCompleteTodo}
+                onUpdateTodo={onUpdateTodo}
+                queryString={queryString}
+              />
+            );
+          })}
+        </ul>
+      )}
     </>
   );
 }
