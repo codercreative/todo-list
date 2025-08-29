@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import TodoForm from './features/TodoForm.jsx';
 import TodosViewForm from './features/TodosViewForm.jsx';
@@ -7,15 +7,14 @@ import TodoList from './features/TodoList/TodoList.jsx';
 const url = `https://api.airtable.com/v0/${import.meta.env.VITE_BASE_ID}/${import.meta.env.VITE_TABLE_NAME}`;
 const token = `Bearer ${import.meta.env.VITE_PAT}`;
 
-const encodeUrl = ({ sortField, sortDirection, queryString }) => {
-  // Airtable's query parameter re sort: sort[0][field]=title&sort[0][direction]=desc
-  let sortQuery = `sort[0][field]=${sortField}&sort[0][direction]=${sortDirection}`;
-  let searchQuery = '';
-  if (queryString) {
-    searchQuery = `&filterByFormula=SEARCH("${queryString}",+title)`;
-  }
-  return encodeURI(`${url}?${sortQuery}${searchQuery}`);
-};
+// const encodeUrl = ({ sortField, sortDirection, queryString }) => {
+//   let sortQuery = `sort[0][field]=${sortField}&sort[0][direction]=${sortDirection}`;
+//   let searchQuery = '';
+//   if (queryString) {
+//     searchQuery = `&filterByFormula=SEARCH("${queryString}",+title)`;
+//   }
+//   return encodeURI(`${url}?${sortQuery}${searchQuery}`);
+// };
 
 function App() {
   const [todoList, setTodoList] = useState([]);
@@ -28,6 +27,15 @@ function App() {
 
   const [queryString, setQueryString] = useState('');
 
+  const encodeUrl = useCallback(() => {
+    let sortQuery = `sort[0][field]=${sortField}&sort[0][direction]=${sortDirection}`;
+    let searchQuery = '';
+    if (queryString) {
+      searchQuery = `&filterByFormula=SEARCH("${queryString}",+title)`;
+    }
+    return encodeURI(`${url}?${sortQuery}${searchQuery}`);
+  }, [sortField, sortDirection, queryString]);
+
   useEffect(() => {
     const fetchTodos = async () => {
       setIsLoading(true);
@@ -39,10 +47,7 @@ function App() {
         },
       };
       try {
-        const resp = await fetch(
-          encodeUrl({ sortField, sortDirection, queryString }),
-          options
-        );
+        const resp = await fetch(encodeUrl(), options);
         console.log(resp);
         if (!resp.ok) {
           // const errorData = await resp.json();
@@ -94,10 +99,7 @@ function App() {
     };
     try {
       setIsSaving(true);
-      const resp = await fetch(
-        encodeUrl({ sortField, sortDirection, queryString }),
-        options
-      );
+      const resp = await fetch(encodeUrl(), options);
       console.log(resp);
       if (!resp.ok) {
         throw new Error(`Error: ${resp.status} | Failed posting todos`);
@@ -160,10 +162,7 @@ function App() {
     };
     try {
       setIsSaving(true);
-      const resp = await fetch(
-        encodeUrl({ sortField, sortDirection, queryString }),
-        options
-      );
+      const resp = await fetch(encodeUrl(), options);
       if (!resp.ok) {
         throw new Error(`Error: ${resp.status} | Failed completing todos`);
       }
@@ -230,10 +229,7 @@ function App() {
     };
     try {
       setIsSaving(true);
-      const resp = await fetch(
-        encodeUrl({ sortField, sortDirection, queryString }),
-        options
-      );
+      const resp = await fetch(encodeUrl(), options);
       if (!resp.ok) {
         throw new Error(`Error: ${resp.status} | Failed editing todos`);
       }
