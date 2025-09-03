@@ -1,3 +1,16 @@
+body {
+  background-color: #bcc9b7;
+  font-family: 'Varela Round', sans-serif;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  border-radius: 10px;
+  padding: 0.5em 1em;
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;
