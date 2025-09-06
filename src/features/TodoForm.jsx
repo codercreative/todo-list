@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import TextInputWithLabel from '../shared/TextInputWithLabel.jsx';
+import styled from 'styled-components';
 
 function TodoForm({ onAddTodo, isSaving }) {
   const [workingTodoTitle, setWorkingTodoTitle] = useState('');
@@ -13,7 +14,7 @@ function TodoForm({ onAddTodo, isSaving }) {
   }
 
   return (
-    <form onSubmit={handleAddTodo}>
+    <StyledForm onSubmit={handleAddTodo}>
       <TextInputWithLabel
         elementId="todoTitle"
         inputRef={todoTitleInput}
@@ -22,11 +23,24 @@ function TodoForm({ onAddTodo, isSaving }) {
         labelText="Todo"
         placeholder="Add todo"
       />
-      <button disabled={workingTodoTitle === ''}>
+      <StyledButton disabled={workingTodoTitle === ''}>
         {isSaving ? `Saving...` : `Add Todo`}
-      </button>
-    </form>
+      </StyledButton>
+    </StyledForm>
   );
 }
 
 export default TodoForm;
+
+// ------------------------------STYLED COMPONENTS ------------------------------
+
+const StyledForm = styled.form`
+  padding: 1em;
+  // border: 1px solid green;
+`;
+
+const StyledButton = styled.button`
+  &:disabled {
+    font-style: italic;
+  }
+`;

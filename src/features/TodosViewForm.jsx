@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import styled from 'styled-components';
 
 function TodosViewForm({
   sortDirection,
@@ -32,10 +33,10 @@ function TodosViewForm({
   }
 
   return (
-    <form onSubmit={preventRefresh}>
+    <StyledForm onSubmit={preventRefresh}>
       <div>
         <label htmlFor="search">Search todos:</label>
-        <input
+        <StyledInput
           id="search"
           type="text"
           value={localQueryString}
@@ -50,7 +51,7 @@ function TodosViewForm({
       <div>
         <label>
           Sort by:
-          <select
+          <StyledSelect
             name="sort"
             id=""
             value={sortField}
@@ -58,11 +59,11 @@ function TodosViewForm({
           >
             <option value="title">Title</option>
             <option value="createdTime">Time added</option>
-          </select>
+          </StyledSelect>
         </label>
         <label>
           Direction:
-          <select
+          <StyledSelect
             name="direction"
             id=""
             value={sortDirection}
@@ -70,11 +71,36 @@ function TodosViewForm({
           >
             <option value="asc">Ascending</option>
             <option value="desc">Descending</option>
-          </select>
+          </StyledSelect>
         </label>
       </div>
-    </form>
+    </StyledForm>
   );
 }
 
 export default TodosViewForm;
+
+// ------------------------------STYLED COMPONENTS ------------------------------
+
+const StyledForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  padding: 1em;
+  // border: 1px solid blue;
+`;
+
+const StyledInput = styled.input`
+  margin: 0 0.5em;
+  border: none;
+  padding: 0.5em;
+  border-radius: 10px;
+`;
+
+const StyledSelect = styled.select`
+  font-family: inherit;
+  padding: 0.5em;
+  margin: 0.5em;
+  border: none;
+  border-radius: 10px;
+`;
