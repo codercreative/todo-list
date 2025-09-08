@@ -34,14 +34,22 @@ function reducer(state = initialState, action) {
     case actions.fetchTodos:
       return {
         ...state,
+        isLoading: true,
       };
     case actions.loadTodos:
       return {
         ...state,
+        todoList: action.records.map((record) => ({
+          id: record.id,
+          ...record.fields,
+        })),
+        isLoading: false,
       };
     case actions.setLoadError:
       return {
         ...state,
+        errorMessage: action.error.message,
+        isLoading: false,
       };
     case actions.startRequest:
       return {
