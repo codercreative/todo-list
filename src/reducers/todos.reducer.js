@@ -56,7 +56,7 @@ function reducer(state = initialState, action) {
         ...state,
         isSaving: true,
       };
-
+    //Had to have help with this one:
     // Update todoList when a new todo is added
     // 1. Keep all existing todos by spreading state.todoList. This is important for immutability: we create a new array instead of modifying the existing one.
     //    React relies on creating new objects/arrays to detect state changes and update the UI correctly.
@@ -87,21 +87,44 @@ function reducer(state = initialState, action) {
         isLoading: false,
         isSaving: false,
       };
-    case actions.updateTodo:
-      return {
+    //Had to have help with this one:
+    case actions.updateTodo: {
+      const updatedState = {
         ...state,
+        todoList: state.todoList.map((todo) =>
+          todo.id === action.editedTodo.id ? action.editedTodo : todo
+        ),
       };
+
+      if (action.error) {
+        updatedState.errorMessage = action.error.message;
+      }
+      return updatedState;
+    }
     case actions.completeTodo:
       return {
         ...state,
+        todoList: state.todoList.map((todo) =>
+          todo.id === action.id ? { ...todo, ...action.toggledTodo } : todo
+        ),
       };
-    case actions.revertTodo:
-      return {
+    case actions.revertTodo: {
+      const updatedState = {
         ...state,
+        todoList: state.todoList.map((todo) =>
+          todo.id === action.revertedTodo.id ? action.revertedTodo : todo
+        ),
       };
+
+      if (action.error) {
+        updatedState.errorMessage = action.error.message;
+      }
+      return updatedState;
+    }
     case actions.clearError:
       return {
         ...state,
+        errorMessage: '',
       };
     default:
       return state;
