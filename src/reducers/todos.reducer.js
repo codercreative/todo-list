@@ -29,7 +29,7 @@ export const initialState = {
   errorMessage: '',
 };
 
-function reducer(state = initialState, action) {
+export function reducer(state = initialState, action) {
   switch (action.type) {
     case actions.fetchTodos:
       return {
@@ -42,6 +42,9 @@ function reducer(state = initialState, action) {
         todoList: action.records.map((record) => ({
           id: record.id,
           ...record.fields,
+          isCompleted: record.fields.isCompleted
+            ? record.fields.isCompleted
+            : false,
         })),
         isLoading: false,
       };
@@ -75,7 +78,9 @@ function reducer(state = initialState, action) {
           ...action.records.map((record) => ({
             id: record.id,
             ...record.fields,
-            isCompleted: record.fields.isCompleted ? true : false,
+            isCompleted: record.fields.isCompleted
+              ? record.fields.isCompleted
+              : false,
           })),
         ],
         isSaving: false,

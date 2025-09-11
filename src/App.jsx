@@ -1,9 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useReducer } from 'react';
 import './App.css';
 import TodoForm from './features/TodoForm.jsx';
 import TodosViewForm from './features/TodosViewForm.jsx';
 import TodoList from './features/TodoList/TodoList.jsx';
 import AppStyles from './App.module.css';
+
+import {
+  reducer as todosReducer,
+  actions as todoActions,
+  initialState as initialTodoState,
+} from './reducers/todos.reducer.js';
 
 const url = `https://api.airtable.com/v0/${import.meta.env.VITE_BASE_ID}/${import.meta.env.VITE_TABLE_NAME}`;
 const token = `Bearer ${import.meta.env.VITE_PAT}`;
@@ -17,11 +23,15 @@ const token = `Bearer ${import.meta.env.VITE_PAT}`;
 //   return encodeURI(`${url}?${sortQuery}${searchQuery}`);
 // };
 
+//=======================  APP  =======================
+
 function App() {
-  const [todoList, setTodoList] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [todoState, dispatch] = useReducer(todosReducer, initialTodoState);
+
+  // const [todoList, setTodoList] = useState([]);
+  // const [isLoading, setIsLoading] = useState(false);
+  // const [isSaving, setIsSaving] = useState(false);
+  // const [errorMessage, setErrorMessage] = useState('');
 
   const [sortField, setSortField] = useState('createdTime');
   const [sortDirection, setSortDirection] = useState('desc');
@@ -37,9 +47,12 @@ function App() {
     return encodeURI(`${url}?${sortQuery}${searchQuery}`);
   }, [sortField, sortDirection, queryString]);
 
+  //======================= USE EFFECT  =======================
+
   useEffect(() => {
     const fetchTodos = async () => {
-      setIsLoading(true);
+      // setIsLoading(true);
+      dispatch({ type: todoActions.fetchTodos });
 
       const options = {
         method: 'GET',
@@ -57,22 +70,25 @@ function App() {
         }
         const response = await resp.json();
 
-        const fetchedRecords = response.records.map((record) => {
-          const todo = {
-            id: record.id,
-            ...record.fields,
-          };
-          if (!todo.isCompleted) {
-            todo.isCompleted = false;
-          }
-          return todo;
-        });
+        // const fetchedRecords = response.records.map((record) => {
+        //   const todo = {
+        //     id: record.id,
+        //     ...record.fields,
+        //   };
+        //   if (!todo.isCompleted) {
+        //     todo.isCompleted = false;
+        //   }
+        //   return todo;
+        // });
 
-        setTodoList(fetchedRecords);
+        // setTodoList(fetchedRecords);
+        dispatch({ type: todoActions.loadTodos, records: response.records });
       } catch (error) {
-        setErrorMessage(error.message);
+        // setErrorMessage(error.message);
+        dispatch({ type: todoActions.setLoadError, error });
       } finally {
-        setIsLoading(false);
+        // setIsLoading(false);
+        dispatch({ type: todoActions.endRequest });
       }
     };
 
@@ -99,49 +115,59 @@ function App() {
       body: JSON.stringify(payload),
     };
     try {
-      setIsSaving(true);
+      // setIsSaving(true);
+      dispatch({ type: todoActions.startRequest });
       const resp = await fetch(encodeUrl(), options);
       console.log(resp);
       if (!resp.ok) {
         throw new Error(`Error: ${resp.status} | Failed posting todos`);
       }
       const { records } = await resp.json();
-      const savedTodo = {
-        id: records[0].id,
-        ...records[0].fields,
-      };
+      // const savedTodo = {
+      //   id: records[0].id,
+      //   ...records[0].fields,
+      // };
 
-      if (!records[0].fields.isCompleted) {
-        savedTodo.isCompleted = false;
-      }
-      setTodoList((prevTodos) => [...prevTodos, savedTodo]);
+      // if (!records[0].fields.isCompleted) {
+      //   savedTodo.isCompleted = false;
+      // }
+
+      // setTodoList((prevTodos) => [...prevTodos, savedTodo]);
+      dispatch({ type: todoActions.addTodo, records });
     } catch (error) {
       console.log(error);
-      setErrorMessage(error.message);
+      // setErrorMessage(error.message);
+      dispatch({ type: todoActions.setLoadError, error });
     } finally {
-      setIsSaving(false);
+      // setIsSaving(false);
+      dispatch({ type: todoActions.endRequest });
     }
   };
 
-  const completeTodo = async (todoId) => {
-    const previousTodoList = [...todoList];
+  //=======================  COMPLETE TODO HELPER FUNCTION  =======================
 
-    const originalTodo = todoList.find((todo) => todo.id === todoId);
+  const completeTodo = async (todoId) => {
+    // const previousTodoList = [...todoList];
+
+    const originalTodo = todoState.todoList.find((todo) => todo.id === todoId);
 
     const toggledTodo = {
       ...originalTodo,
       isCompleted: !originalTodo.isCompleted,
     };
 
-    setTodoList((prevTodos) =>
-      prevTodos.map((todo) => {
-        if (todo.id === todoId) {
-          return toggledTodo;
-        } else {
-          return todo;
-        }
-      })
-    );
+    // setTodoList((prevTodos) =>
+    //   prevTodos.map((todo) => {
+    //     if (todo.id === todoId) {
+    //       return toggledTodo;
+    //     } else {
+    //       return todo;
+    //     }
+    //   })
+    // );
+
+    dispatch({ type: todoActions.updateTodo, editedTodo: toggledTodo });
+
     const payload = {
       records: [
         {
@@ -162,7 +188,8 @@ function App() {
       body: JSON.stringify(payload),
     };
     try {
-      setIsSaving(true);
+      // setIsSaving(true);
+      dispatch({ type: todoActions.startRequest });
       const resp = await fetch(encodeUrl(), options);
       if (!resp.ok) {
         throw new Error(`Error: ${resp.status} | Failed completing todos`);
@@ -180,7 +207,8 @@ function App() {
       // }
     } catch (error) {
       console.log(error);
-      setErrorMessage(error.message);
+      // setErrorMessage(error.message);
+      dispatch({ type: todoActions.setLoadError, error });
       // const revertedTodos = todoList.map((todo) => {
       //   if (todo.id === originalTodo.id) {
       //     return previousTodos;
@@ -189,25 +217,35 @@ function App() {
       //   }
       // });
       //Created a const for previousTodos at the very beginning of the completeTodo helper function and falling back to the previousTodos here in case there is an error. This is a nice refactor too.
-      setTodoList(previousTodoList);
+      // setTodoList(previousTodoList);
+      dispatch({ type: todoActions.revertTodo, revertedTodo: originalTodo });
     } finally {
-      setIsSaving(false);
+      // setIsSaving(false);
+      dispatch({ type: todoActions.endRequest });
     }
   };
 
+  //=======================  UPDATE TODO HELPER FUNCTION  =======================
+
   const updateTodo = async (editedTodo) => {
-    const previousTodoList = [...todoList];
+    //Added here to make the dispatch work properly.
+    const originalTodo = todoState.todoList.find(
+      (todo) => todo.id === editedTodo.id
+    );
+    // const previousTodoList = [...todoList];
 
     //Optimistically updating the todo using setTodoList with map to immediately reflect the change in the UI
-    setTodoList((prevTodos) =>
-      prevTodos.map((todo) => {
-        if (todo.id === editedTodo.id) {
-          return editedTodo;
-        } else {
-          return todo;
-        }
-      })
-    );
+    // setTodoList((prevTodos) =>
+    //   prevTodos.map((todo) => {
+    //     if (todo.id === editedTodo.id) {
+    //       return editedTodo;
+    //     } else {
+    //       return todo;
+    //     }
+    //   })
+    // );
+
+    dispatch({ type: todoActions.updateTodo, editedTodo });
 
     const payload = {
       records: [
@@ -229,7 +267,8 @@ function App() {
       body: JSON.stringify(payload),
     };
     try {
-      setIsSaving(true);
+      // setIsSaving(true);
+      dispatch({ type: todoActions.startRequest });
       const resp = await fetch(encodeUrl(), options);
       if (!resp.ok) {
         throw new Error(`Error: ${resp.status} | Failed editing todos`);
@@ -246,7 +285,11 @@ function App() {
       // }
     } catch (error) {
       console.log(error);
-      setErrorMessage(`${error.message}. Reverting todo...`);
+      // setErrorMessage(`${error.message}. Reverting todo...`);
+      dispatch({
+        type: todoActions.setLoadError,
+        error: { message: `${error.message}. Reverting todo...` },
+      });
       // const revertedTodos = todoList.map((todo) => {
       //   if (todo.id === originalTodo.id) {
       //     return originalTodo;
@@ -255,21 +298,26 @@ function App() {
       //   }
       // });
       // setTodoList([...revertedTodos]);
-      setTodoList(previousTodoList);
+      // setTodoList(previousTodoList);
+      dispatch({ type: todoActions.revertTodo, revertedTodo: originalTodo });
     } finally {
-      setIsSaving(false);
+      // setIsSaving(false);
+      dispatch({ type: todoActions.endRequest });
     }
   };
+
+  //=======================  JSX | MAIN UI LAYOUT =======================
 
   return (
     <main className={AppStyles.main}>
       <h1>My Todos</h1>
-      <TodoForm onAddTodo={addTodo} isSaving={isSaving} />
+      <TodoForm onAddTodo={addTodo} isSaving={todoState.isSaving} />
       <TodoList
-        todoList={todoList}
+        todoList={todoState.todoList}
         onCompleteTodo={completeTodo}
         onUpdateTodo={updateTodo}
-        isLoading={isLoading}
+        //using reducer state for loading instead of local useState
+        isLoading={todoState.isLoading}
         queryString={queryString}
       />
       <hr />
@@ -281,11 +329,14 @@ function App() {
         queryString={queryString}
         setQueryString={setQueryString}
       />
-      {errorMessage && (
+      {todoState.errorMessage && (
         <div className={AppStyles.errorMessage}>
           <hr />
-          <p>{errorMessage}</p>
-          <button onClick={() => setErrorMessage('')}>Dismiss</button>
+          <p>{todoState.errorMessage}</p>
+          {/* <button onClick={() => setErrorMessage('')}>Dismiss</button> */}
+          <button onClick={() => dispatch({ type: todoActions.clearError })}>
+            Dismiss
+          </button>
         </div>
       )}
     </main>
