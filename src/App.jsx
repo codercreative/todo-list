@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback, useReducer } from 'react';
+import { Routes, Route, useLocation } from 'react-router';
 import './App.css';
-import TodoForm from './features/TodoForm.jsx';
-import TodosViewForm from './features/TodosViewForm.jsx';
-import TodoList from './features/TodoList/TodoList.jsx';
 import AppStyles from './App.module.css';
+import TodosPage from './TodosPage.jsx';
+import Header from './shared/Header.jsx';
+import About from './pages/About.jsx';
+import NotFound from './pages/NotFound.jsx';
 
 import {
   reducer as todosReducer,
@@ -28,6 +30,9 @@ const token = `Bearer ${import.meta.env.VITE_PAT}`;
 function App() {
   const [todoState, dispatch] = useReducer(todosReducer, initialTodoState);
 
+  // Keep track of page location
+  const location = useLocation();
+
   // const [todoList, setTodoList] = useState([]);
   // const [isLoading, setIsLoading] = useState(false);
   // const [isSaving, setIsSaving] = useState(false);
@@ -37,6 +42,8 @@ function App() {
   const [sortDirection, setSortDirection] = useState('desc');
 
   const [queryString, setQueryString] = useState('');
+
+  const [headerTitle, setHeaderTitle] = useState('');
 
   const encodeUrl = useCallback(() => {
     let sortQuery = `sort[0][field]=${sortField}&sort[0][direction]=${sortDirection}`;
@@ -48,6 +55,23 @@ function App() {
   }, [sortField, sortDirection, queryString]);
 
   //======================= USE EFFECT  =======================
+
+  // useEffect for useLocation Hook
+  useEffect(() => {
+    switch (location.pathname) {
+      case '/':
+        document.title = 'My Todos';
+        setHeaderTitle('My Todos');
+        break;
+      case '/about':
+        document.title = 'About';
+        setHeaderTitle('About');
+        break;
+      default:
+        document.title = 'Not Found';
+        setHeaderTitle('Not Found');
+    }
+  }, [location]);
 
   useEffect(() => {
     const fetchTodos = async () => {
@@ -93,7 +117,7 @@ function App() {
     };
 
     fetchTodos();
-  }, [sortField, sortDirection, queryString]);
+  }, [encodeUrl, sortField, sortDirection, queryString]);
 
   const addTodo = async (newTodo) => {
     const payload = {
@@ -310,35 +334,29 @@ function App() {
 
   return (
     <main className={AppStyles.main}>
-      <h1>My Todos</h1>
-      <TodoForm onAddTodo={addTodo} isSaving={todoState.isSaving} />
-      <TodoList
-        todoList={todoState.todoList}
-        onCompleteTodo={completeTodo}
-        onUpdateTodo={updateTodo}
-        //using reducer state for loading instead of local useState
-        isLoading={todoState.isLoading}
-        queryString={queryString}
-      />
-      <hr />
-      <TodosViewForm
-        sortDirection={sortDirection}
-        setSortDirection={setSortDirection}
-        sortField={sortField}
-        setSortField={setSortField}
-        queryString={queryString}
-        setQueryString={setQueryString}
-      />
-      {todoState.errorMessage && (
-        <div className={AppStyles.errorMessage}>
-          <hr />
-          <p>{todoState.errorMessage}</p>
-          {/* <button onClick={() => setErrorMessage('')}>Dismiss</button> */}
-          <button onClick={() => dispatch({ type: todoActions.clearError })}>
-            Dismiss
-          </button>
-        </div>
-      )}
+      <Header title={headerTitle} />
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <TodosPage
+              todoState={todoState}
+              addTodo={addTodo}
+              completeTodo={completeTodo}
+              updateTodo={updateTodo}
+              queryString={queryString}
+              setQueryString={setQueryString}
+              sortDirection={sortDirection}
+              setSortDirection={setSortDirection}
+              sortField={sortField}
+              setSortField={setSortField}
+              dispatch={dispatch}
+            />
+          }
+        />
+        <Route path="/about" element={<About />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
     </main>
   );
 }

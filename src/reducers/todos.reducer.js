@@ -94,6 +94,7 @@ export function reducer(state = initialState, action) {
       };
     //Had to have help with this one:
     case actions.updateTodo: {
+      console.log('update todo', actions);
       const updatedState = {
         ...state,
         todoList: state.todoList.map((todo) =>
@@ -121,8 +122,12 @@ export function reducer(state = initialState, action) {
         ),
       };
 
+      // if (action.error) {
+      //   updatedState.errorMessage = action.error.message;
+      // }
+
       if (action.error) {
-        updatedState.errorMessage = action.error.message;
+        return { ...state, errorMessage: action.error.message };
       }
       return updatedState;
     }
