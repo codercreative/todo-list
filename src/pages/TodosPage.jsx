@@ -1,8 +1,8 @@
-import TodoForm from './features/TodoForm.jsx';
-import TodosViewForm from './features/TodosViewForm.jsx';
-import TodoList from './features/TodoList/TodoList.jsx';
-import AppStyles from './App.module.css';
-import { actions as todoActions } from './reducers/todos.reducer.js';
+import TodoForm from '../features/TodoForm.jsx';
+import TodosViewForm from '../features/TodosViewForm.jsx';
+import TodoList from '../features/TodoList/TodoList.jsx';
+import AppStyles from '../App.module.css';
+import { actions as todoActions } from '../reducers/todos.reducer.js';
 
 function TodosPage({
   todoState,

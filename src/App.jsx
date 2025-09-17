@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useReducer } from 'react';
 import { Routes, Route, useLocation } from 'react-router';
 import './App.css';
 import AppStyles from './App.module.css';
-import TodosPage from './TodosPage.jsx';
+import TodosPage from './pages/TodosPage.jsx';
 import Header from './shared/Header.jsx';
 import About from './pages/About.jsx';
 import NotFound from './pages/NotFound.jsx';

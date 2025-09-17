@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import TodoListItem from './TodoListItem.jsx';
 import TodoListStyles from './TodoList.module.css';
-import { useSearchParams } from 'react-router';
 
 function TodoList({
   todoList,
